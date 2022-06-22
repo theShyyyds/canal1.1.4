@@ -1,10 +1,5 @@
 package com.alibaba.otter.canal.adapter.launcher.loader;
 
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.client.adapter.OuterAdapter;
@@ -12,6 +7,11 @@ import com.alibaba.otter.canal.client.adapter.support.CanalClientConfig;
 import com.alibaba.otter.canal.client.impl.ClusterCanalConnector;
 import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
 import com.alibaba.otter.canal.protocol.Message;
+
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 原生canal-server对应的client适配器工作线程
@@ -24,17 +24,17 @@ public class CanalAdapterWorker extends AbstractCanalAdapterWorker {
     private static final int BATCH_SIZE = 50;
     private static final int SO_TIMEOUT = 0;
 
-    private CanalConnector   connector;
+    private CanalConnector connector;
 
     /**
      * 单台client适配器worker的构造方法
      *
-     * @param canalDestination canal实例名
-     * @param address canal-server地址
+     * @param canalDestination   canal实例名
+     * @param address            canal-server地址
      * @param canalOuterAdapters 外部适配器组
      */
     public CanalAdapterWorker(CanalClientConfig canalClientConfig, String canalDestination, SocketAddress address,
-                              List<List<OuterAdapter>> canalOuterAdapters){
+                              List<List<OuterAdapter>> canalOuterAdapters) {
         super(canalOuterAdapters);
         this.canalClientConfig = canalClientConfig;
         this.canalDestination = canalDestination;
@@ -44,12 +44,12 @@ public class CanalAdapterWorker extends AbstractCanalAdapterWorker {
     /**
      * HA模式下client适配器worker的构造方法
      *
-     * @param canalDestination canal实例名
-     * @param zookeeperHosts zookeeper地址
+     * @param canalDestination   canal实例名
+     * @param zookeeperHosts     zookeeper地址
      * @param canalOuterAdapters 外部适配器组
      */
     public CanalAdapterWorker(CanalClientConfig canalClientConfig, String canalDestination, String zookeeperHosts,
-                              List<List<OuterAdapter>> canalOuterAdapters){
+                              List<List<OuterAdapter>> canalOuterAdapters) {
         super(canalOuterAdapters);
         this.canalDestination = canalDestination;
         this.canalClientConfig = canalClientConfig;
@@ -112,17 +112,17 @@ public class CanalAdapterWorker extends AbstractCanalAdapterWorker {
                             } else {
                                 if (logger.isDebugEnabled()) {
                                     logger.debug("destination: {} batchId: {} batchSize: {} ",
-                                        canalDestination,
-                                        batchId,
-                                        size);
+                                            canalDestination,
+                                            batchId,
+                                            size);
                                 }
                                 long begin = System.currentTimeMillis();
                                 writeOut(message);
                                 if (logger.isDebugEnabled()) {
                                     logger.debug("destination: {} batchId: {} elapsed time: {} ms",
-                                        canalDestination,
-                                        batchId,
-                                        System.currentTimeMillis() - begin);
+                                            canalDestination,
+                                            batchId,
+                                            System.currentTimeMillis() - begin);
                                 }
                             }
                             connector.ack(batchId); // 提交确认

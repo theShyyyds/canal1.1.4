@@ -13,34 +13,34 @@ import java.util.Map;
 public class CanalClientConfig {
 
     // 单机模式下canal server的ip:port
-    private String             canalServerHost;
+    private String canalServerHost;
     // 集群模式下的zk地址,如果配置了单机地址则以单机为准!!
-    private String             zookeeperHosts;
+    private String zookeeperHosts;
     // kafka or rocket mq 地址
-    private String             mqServers;
+    private String mqServers;
     // 是否已flatMessage模式传输,只适用于mq模式
-    private Boolean            flatMessage   = true;
+    private Boolean flatMessage = true;
     // 批大小
-    private Integer            batchSize;
+    private Integer batchSize;
     // 同步分批提交大小
-    private Integer            syncBatchSize = 1000;
+    private Integer syncBatchSize = 1000;
     // 重试次数
-    private Integer            retries;
+    private Integer retries;
     // 消费超时时间
-    private Long               timeout;
+    private Long timeout;
     // 模式 tcp kafka rocketMQ
-    private String             mode          = "tcp";
+    private String mode = "tcp";
     // aliyun ak/sk
-    private String             accessKey;
-    private String             secretKey;
+    private String accessKey;
+    private String secretKey;
     // 是否启用消息轨迹
-    private boolean            enableMessageTrace;
+    private boolean enableMessageTrace;
     // 在使用阿里云商业化mq服务时，如果想使用云上消息轨迹功能，请设置此配置为true
-    private String             accessChannel;
+    private String accessChannel;
     // 用于使用开源RocketMQ时，设置自定义的消息轨迹topic
-    private String             customizedTraceTopic;
+    private String customizedTraceTopic;
     // 开源RocketMQ命名空间
-    private String             namespace;
+    private String namespace;
     // canal adapters 配置
     private List<CanalAdapter> canalAdapters;
 
@@ -174,7 +174,7 @@ public class CanalClientConfig {
 
     public static class CanalAdapter {
 
-        private String      instance; // 实例名
+        private String instance; // 实例名
 
         private List<Group> groups;  // 适配器分组列表
 
@@ -200,8 +200,8 @@ public class CanalClientConfig {
     public static class Group {
 
         // group id
-        private String                          groupId          = "default";
-        private List<OuterAdapterConfig>        outerAdapters;                           // 适配器列表
+        private String groupId = "default";
+        private List<OuterAdapterConfig> outerAdapters;                           // 适配器列表
         private Map<String, OuterAdapterConfig> outerAdaptersMap = new LinkedHashMap<>();
 
         public String getGroupId() {

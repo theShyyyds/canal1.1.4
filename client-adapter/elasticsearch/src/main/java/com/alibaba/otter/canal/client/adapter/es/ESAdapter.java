@@ -1,18 +1,5 @@
 package com.alibaba.otter.canal.client.adapter.es;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.otter.canal.client.adapter.OuterAdapter;
 import com.alibaba.otter.canal.client.adapter.es.config.ESSyncConfig;
@@ -26,6 +13,17 @@ import com.alibaba.otter.canal.client.adapter.es.service.ESSyncService;
 import com.alibaba.otter.canal.client.adapter.es.support.ESConnection;
 import com.alibaba.otter.canal.client.adapter.es.support.ESTemplate;
 import com.alibaba.otter.canal.client.adapter.support.*;
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+
+import javax.sql.DataSource;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ES外部适配器
@@ -36,16 +34,16 @@ import com.alibaba.otter.canal.client.adapter.support.*;
 @SPI("es")
 public class ESAdapter implements OuterAdapter {
 
-    private Map<String, ESSyncConfig>              esSyncConfig        = new ConcurrentHashMap<>(); // 文件名对应配置
+    private Map<String, ESSyncConfig> esSyncConfig = new ConcurrentHashMap<>(); // 文件名对应配置
     private Map<String, Map<String, ESSyncConfig>> dbTableEsSyncConfig = new ConcurrentHashMap<>(); // schema-table对应配置
 
-    private ESConnection                           esConnection;
+    private ESConnection esConnection;
 
-    private ESSyncService                          esSyncService;
+    private ESSyncService esSyncService;
 
-    private ESConfigMonitor                        esConfigMonitor;
+    private ESConfigMonitor esConfigMonitor;
 
-    private Properties                             envProperties;
+    private Properties envProperties;
 
     public ESSyncService getEsSyncService() {
         return esSyncService;
@@ -75,7 +73,7 @@ public class ESAdapter implements OuterAdapter {
             // 过滤不匹配的key的配置
             esSyncConfigTmp.forEach((key, config) -> {
                 if ((config.getOuterAdapterKey() == null && configuration.getKey() == null)
-                    || (config.getOuterAdapterKey() != null
+                        || (config.getOuterAdapterKey() != null
                         && config.getOuterAdapterKey().equalsIgnoreCase(configuration.getKey()))) {
                     esSyncConfig.put(key, config);
                 }
@@ -101,17 +99,17 @@ public class ESAdapter implements OuterAdapter {
                 schemaItem.getAliasTableItems().values().forEach(tableItem -> {
                     Map<String, ESSyncConfig> esSyncConfigMap;
                     if (envProperties != null
-                        && !"tcp".equalsIgnoreCase(envProperties.getProperty("canal.conf.mode"))) {
+                            && !"tcp".equalsIgnoreCase(envProperties.getProperty("canal.conf.mode"))) {
                         esSyncConfigMap = dbTableEsSyncConfig
-                            .computeIfAbsent(StringUtils.trimToEmpty(config.getDestination()) + "-"
-                                             + StringUtils.trimToEmpty(config.getGroupId()) + "_" + schema + "-"
-                                             + tableItem.getTableName(),
-                                k -> new ConcurrentHashMap<>());
+                                .computeIfAbsent(StringUtils.trimToEmpty(config.getDestination()) + "-"
+                                                + StringUtils.trimToEmpty(config.getGroupId()) + "_" + schema + "-"
+                                                + tableItem.getTableName(),
+                                        k -> new ConcurrentHashMap<>());
                     } else {
                         esSyncConfigMap = dbTableEsSyncConfig
-                            .computeIfAbsent(StringUtils.trimToEmpty(config.getDestination()) + "_" + schema + "-"
-                                             + tableItem.getTableName(),
-                                k -> new ConcurrentHashMap<>());
+                                .computeIfAbsent(StringUtils.trimToEmpty(config.getDestination()) + "_" + schema + "-"
+                                                + tableItem.getTableName(),
+                                        k -> new ConcurrentHashMap<>());
                     }
 
                     esSyncConfigMap.put(configName, config);
@@ -158,11 +156,11 @@ public class ESAdapter implements OuterAdapter {
         Map<String, ESSyncConfig> configMap;
         if (envProperties != null && !"tcp".equalsIgnoreCase(envProperties.getProperty("canal.conf.mode"))) {
             configMap = dbTableEsSyncConfig
-                .get(StringUtils.trimToEmpty(dml.getDestination()) + "-" + StringUtils.trimToEmpty(dml.getGroupId())
-                     + "_" + database + "-" + table);
+                    .get(StringUtils.trimToEmpty(dml.getDestination()) + "-" + StringUtils.trimToEmpty(dml.getGroupId())
+                            + "_" + database + "-" + table);
         } else {
             configMap = dbTableEsSyncConfig
-                .get(StringUtils.trimToEmpty(dml.getDestination()) + "_" + database + "-" + table);
+                    .get(StringUtils.trimToEmpty(dml.getDestination()) + "_" + database + "-" + table);
         }
 
         if (configMap != null && !configMap.values().isEmpty()) {
@@ -220,7 +218,7 @@ public class ESAdapter implements OuterAdapter {
         ESSyncConfig config = esSyncConfig.get(task);
         ESMapping mapping = config.getEsMapping();
         SearchResponse response = this.esConnection.new ESSearchRequest(mapping.get_index(), mapping.get_type()).size(0)
-            .getResponse();
+                .getResponse();
 
         long rowCount = response.getHits().getTotalHits();
         Map<String, Object> res = new LinkedHashMap<>();

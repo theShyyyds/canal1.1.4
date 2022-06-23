@@ -9,6 +9,7 @@ import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
 import com.alibaba.otter.canal.protocol.Message;
 
 import java.net.SocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -38,7 +39,9 @@ public class CanalAdapterWorker extends AbstractCanalAdapterWorker {
         super(canalOuterAdapters);
         this.canalClientConfig = canalClientConfig;
         this.canalDestination = canalDestination;
-        connector = CanalConnectors.newSingleConnector(address, canalDestination, "", "");
+//        connector = CanalConnectors.newSingleConnector(address, canalDestination, "", "");
+        //shy-消费不到改动
+        connector = CanalConnectors.newClusterConnector(Arrays.asList(address), canalDestination, "", "");
     }
 
     /**

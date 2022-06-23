@@ -6,6 +6,7 @@ import com.alibaba.otter.canal.client.adapter.es.config.SchemaItem;
 import com.alibaba.otter.canal.client.adapter.es.config.SchemaItem.ColumnItem;
 import com.alibaba.otter.canal.client.adapter.es.config.SchemaItem.TableItem;
 import com.alibaba.otter.canal.client.adapter.support.Util;
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -55,6 +56,13 @@ public class ESSyncUtil {
         if (esType == null) {
             return val;
         }
+
+        //shy-增加代码
+        //For input string: ""防止空转换异常指针异常
+        if(StringUtil.isNullOrEmpty(val.toString())){
+            return null;
+        }
+
         Object res = null;
         if ("integer".equals(esType)) {
             if (val instanceof Number) {
@@ -102,6 +110,7 @@ public class ESSyncUtil {
                 res = Boolean.parseBoolean(val.toString());
             }
         } else if ("date".equals(esType)) {
+            //shy-es 时间类型转换
             if (val instanceof java.sql.Time) {
                 DateTime dateTime = new DateTime(((java.sql.Time) val).getTime());
                 if (dateTime.getMillisOfSecond() != 0) {
@@ -112,9 +121,9 @@ public class ESSyncUtil {
             } else if (val instanceof java.sql.Timestamp) {
                 DateTime dateTime = new DateTime(((java.sql.Timestamp) val).getTime());
                 if (dateTime.getMillisOfSecond() != 0) {
-                    res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS" + Util.timeZone);
+                    res = dateTime.toString("yyyy-MM-dd HH:mm:ss.SSS");
                 } else {
-                    res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss" + Util.timeZone);
+                    res = dateTime.toString("yyyy-MM-dd HH:mm:ss");
                 }
             } else if (val instanceof java.sql.Date || val instanceof Date) {
                 DateTime dateTime;
@@ -128,9 +137,9 @@ public class ESSyncUtil {
                     res = dateTime.toString("yyyy-MM-dd");
                 } else {
                     if (dateTime.getMillisOfSecond() != 0) {
-                        res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS" + Util.timeZone);
+                        res = dateTime.toString("yyyy-MM-dd HH:mm:ss.SSS");
                     } else {
-                        res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss" + Util.timeZone);
+                        res = dateTime.toString("yyyy-MM-dd HH:mm:ss");
                     }
                 }
             } else if (val instanceof Long) {
@@ -139,9 +148,9 @@ public class ESSyncUtil {
                         && dateTime.getMillisOfSecond() == 0) {
                     res = dateTime.toString("yyyy-MM-dd");
                 } else if (dateTime.getMillisOfSecond() != 0) {
-                    res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS" + Util.timeZone);
+                    res = dateTime.toString("yyyy-MM-dd HH:mm:ss.SSS");
                 } else {
-                    res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss" + Util.timeZone);
+                    res = dateTime.toString("yyyy-MM-dd HH:mm:ss");
                 }
             } else if (val instanceof String) {
                 String v = ((String) val).trim();
@@ -152,9 +161,9 @@ public class ESSyncUtil {
                     if (date != null) {
                         DateTime dateTime = new DateTime(date);
                         if (dateTime.getMillisOfSecond() != 0) {
-                            res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSS" + Util.timeZone);
+                            res = dateTime.toString("yyyy-MM-dd HH:mm:ss.SSS");
                         } else {
-                            res = dateTime.toString("yyyy-MM-dd'T'HH:mm:ss" + Util.timeZone);
+                            res = dateTime.toString("yyyy-MM-dd HH:mm:ss");
                         }
                     }
                 } else if (v.length() == 10 && v.charAt(4) == '-' && v.charAt(7) == '-') {

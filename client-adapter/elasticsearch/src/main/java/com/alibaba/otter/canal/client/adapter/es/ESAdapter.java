@@ -14,6 +14,7 @@ import com.alibaba.otter.canal.client.adapter.es.support.ESConnection;
 import com.alibaba.otter.canal.client.adapter.es.support.ESTemplate;
 import com.alibaba.otter.canal.client.adapter.support.*;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 
 import javax.sql.DataSource;
@@ -220,10 +221,12 @@ public class ESAdapter implements OuterAdapter {
         SearchResponse response = this.esConnection.new ESSearchRequest(mapping.get_index(), mapping.get_type()).size(0)
                 .getResponse();
 
-        long rowCount = response.getHits().getTotalHits();
+//        long rowCount = response.getHits().getTotalHits();
+        //shy-提高版本改动
+        TotalHits totalHits = response.getHits().getTotalHits();
         Map<String, Object> res = new LinkedHashMap<>();
         res.put("esIndex", mapping.get_index());
-        res.put("count", rowCount);
+        res.put("count", totalHits.value);
         return res;
     }
 

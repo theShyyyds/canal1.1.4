@@ -18,6 +18,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.*;
@@ -129,16 +130,7 @@ public class ESConnection {
             try {
                 GetMappingsRequest request = new GetMappingsRequest();
                 request.indices(index);
-                GetMappingsResponse response;
-                // try {
-                // response = restHighLevelClient
-                // .indices()
-                // .getMapping(request, RequestOptions.DEFAULT);
-                // // 6.4以下版本直接使用该接口会报错
-                // } catch (Exception e) {
-                // logger.warn("Low ElasticSearch version for getMapping");
-                response = RestHighLevelClientExt.getMapping(restHighLevelClient, request, RequestOptions.DEFAULT);
-                // }
+                GetMappingsResponse response = restHighLevelClient.indices().getMapping(request, RequestOptions.DEFAULT);
 
                 mappings = response.mappings();
             } catch (NullPointerException e) {
@@ -413,15 +405,21 @@ public class ESConnection {
         }
 
         public BulkResponse bulk() {
+            BulkResponse bulkResponse = null;
             if (mode == ESClientMode.TRANSPORT) {
                 return bulkRequestBuilder.execute().actionGet();
             } else {
                 try {
-                    return restHighLevelClient.bulk(bulkRequest);
+                    //详见文档https://blog.csdn.net/hanchao5272/article/details/89151166 刷新策略 立即可见
+                    bulkRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+                    //shy-版本提高修改
+                    bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+//                    return restHighLevelClient.bulk(bulkRequest);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
+            return bulkResponse;
         }
 
         public BulkRequestBuilder getBulkRequestBuilder() {
